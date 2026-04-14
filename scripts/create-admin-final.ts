@@ -2,7 +2,7 @@ import { createClient } from "@libsql/client/web";
 import { nanoid } from "nanoid";
 
 const TURSO_URL = "libsql://satyaganita-anfal.aws-ap-northeast-1.turso.io";
-const TURSO_AUTH_TOKEN = "eyJhbGciOiJFZERTQSIsInR5cCI6IkpXVCJ9.eyJhIjoicnciLCJpYXQiOjE3NzU4NDAwNDUsImlkIjoiMDE5ZDc4MWUtZTUwMS03MGMxLWJhZDUtZGE5NmNmOTVjOTk0IiwicmlkIjoiNWZkNzE3ZTctZDk0OC00ZGQ2LTg4ZjAtODcwNmFlMzg5NDExIn0.p3oK1tXzACwAw0uD1jTLhWDV7Qw40yFrdjSylKD2oPcPn9RaYca385hXeZnWnGTF6JvRq-t0cH2qVrEBE_E0Cw";
+const TURSO_AUTH_TOKEN = "eyJhbGciOiJFZERTQSIsInR5cCI6IkpXVCJ9.eyJhIjoicnciLCJpYXQiOjE3NzYxMzE4ODYsImlkIjoiMDE5ZDc4MWUtZTUwMS03MGMxLWJhZDUtZGE5NmNmOTVjOTk0IiwicmlkIjoiNWZkNzE3ZTctZDk0OC00ZGQ2LTg4ZjAtODcwNmFlMzg5NDExIn0.G6jKgVsyBPHYu6lEV9ZRh86ul2blUVH4BQxpX1NhnluWfX6N5UzODroaNwLKyEMV-mHhEIRpOjLk6NMFmZy-Dw";
 
 async function createAdminUser() {
   try {

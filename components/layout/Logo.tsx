@@ -36,14 +36,11 @@ export function Logo({ variant = 'full', className = '', showTagline = true, lig
   if (customLogoUrl) {
     return (
       <div className={`flex items-center gap-3 ${className}`}>
-        <div className={`relative ${baseSize} overflow-hidden`}>
-          <Image
+        <div className={`relative flex items-center justify-center bg-white p-1.5 rounded-xl shadow-[0_4px_20px_rgba(0,0,0,0.15)] ${variant === 'icon' ? 'h-10' : variant === 'compact' ? 'h-11' : 'h-16'} w-auto transition-transform hover:scale-105`}>
+          <img
             src={customLogoUrl}
             alt="Satya Ganita Advisor Logo"
-            width={variant === 'icon' ? 40 : variant === 'compact' ? 48 : 64}
-            height={variant === 'icon' ? 40 : variant === 'compact' ? 48 : 64}
-            className="object-contain"
-            priority
+            className="h-full w-auto object-contain max-w-[240px] rounded-md"
           />
         </div>
         {variant !== 'icon' && (
@@ -72,7 +69,7 @@ export function Logo({ variant = 'full', className = '', showTagline = true, lig
   return (
     <div className={`flex items-center gap-3 ${className}`}>
       {/* Logo Icon */}
-      <div className={`relative ${baseSize} rounded-xl overflow-hidden bg-gradient-to-br from-primary via-primary to-accent shadow-lg flex items-center justify-center`}>
+      <div className={`relative ${baseSize} overflow-hidden rounded-tr-[1.25rem] rounded-bl-[1.25rem] rounded-tl-md rounded-br-md bg-gradient-to-br from-primary via-primary to-accent shadow-[0_0_15px_rgba(var(--primary),0.3)] flex items-center justify-center`}>
         <svg
           viewBox="0 0 100 100"
           className="w-full h-full p-2"

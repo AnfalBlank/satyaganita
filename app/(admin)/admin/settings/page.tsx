@@ -7,7 +7,6 @@ import { toast } from "sonner";
 import { FileText, Save, Loader2, Download } from "lucide-react";
 import { ImageUpload } from "@/components/ui/image-upload";
 import { UploadDropzone } from "@/components/ui/upload-dropzone";
-import { useUploadFiles } from "@better-upload/client";
 
 export default function SettingsPage() {
   const [loading, setLoading] = useState(true);
@@ -15,23 +14,19 @@ export default function SettingsPage() {
   const [companyProfileUrl, setCompanyProfileUrl] = useState("");
   const [logoUrl, setLogoUrl] = useState("");
 
-  const { control: logoControl, uploadedFiles: logoFiles } = useUploadFiles({
-    route: "documents",
-    onUploadComplete: ({ files }) => {
-      const url = `${process.env.NEXT_PUBLIC_R2_PUBLIC_URL}/${files[0].objectInfo.key}`;
-      setLogoUrl(url);
+  const handleLogoUpload = (urls: string[]) => {
+    if (urls && urls.length > 0) {
+      setLogoUrl(urls[0]);
       toast.success("Logo berhasil diunggah!");
-    },
-  });
+    }
+  };
 
-  const { control, uploadedFiles } = useUploadFiles({
-    route: "documents",
-    onUploadComplete: ({ files }) => {
-      const url = `${process.env.NEXT_PUBLIC_R2_PUBLIC_URL}/${files[0].objectInfo.key}`;
-      setCompanyProfileUrl(url);
+  const handleProfileUpload = (urls: string[]) => {
+    if (urls && urls.length > 0) {
+      setCompanyProfileUrl(urls[0]);
       toast.success("File profile berhasil diunggah!");
-    },
-  });
+    }
+  };
 
   useEffect(() => {
     async function fetchSettings() {
@@ -124,7 +119,7 @@ export default function SettingsPage() {
           <CardContent className="space-y-4">
             {logoUrl ? (
               <div className="space-y-4">
-                <div className="flex items-center justify-center rounded-lg border bg-muted/50 p-6">
+                <div className="flex items-center justify-center rounded-2xl border bg-muted/50 p-6">
                   <img
                     src={logoUrl}
                     alt="Logo Preview"
@@ -143,9 +138,9 @@ export default function SettingsPage() {
                 </div>
               </div>
             ) : (
-              <div className="rounded-lg border-2 border-dashed p-8 text-center">
+              <div className="p-2 text-center">
                 <UploadDropzone
-                  control={logoControl}
+                  onUploadComplete={handleLogoUpload}
                   accept="image/png,image/jpeg,image/svg+xml"
                   description={{
                     maxFiles: 1,
@@ -172,7 +167,7 @@ export default function SettingsPage() {
           <CardContent className="space-y-4">
             <div className="flex flex-col gap-4">
               {companyProfileUrl ? (
-                <div className="flex items-center justify-between rounded-lg border bg-muted/50 p-4">
+                <div className="flex items-center justify-between rounded-2xl border bg-muted/50 p-4">
                   <div className="flex items-center gap-3">
                     <FileText className="h-8 w-8 text-primary" />
                     <div>
@@ -199,9 +194,9 @@ export default function SettingsPage() {
                   </div>
                 </div>
               ) : (
-                <div className="rounded-lg border-2 border-dashed p-10 text-center">
+                <div className="p-2 text-center">
                   <UploadDropzone
-                    control={control}
+                    onUploadComplete={handleProfileUpload}
                     accept="application/pdf"
                     description={{
                       maxFiles: 1,

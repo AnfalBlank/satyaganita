@@ -4,7 +4,7 @@ import bcrypt from "bcrypt";
 
 const TURSO_URL = "libsql://satyaganita-anfal.aws-ap-northeast-1.turso.io";
 const TURSO_AUTH_TOKEN =
-  "eyJhbGciOiJFZERTQSIsInR5cCI6IkpXVCJ9.eyJhIjoicnciLCJpYXQiOjE3NzU4NDAwNDUsImlkIjoiMDE5ZDc4MWUtZTUwMS03MGMxLWJhZDUtZGE5NmNmOTVjOTk0IiwicmlkIjoiNWZkNzE3ZTctZDk0OC00ZGQ2LTg4ZjAtODcwNmFlMzg5NDExIn0.p3oK1tXzACwAw0uD1jTLhWDV7Qw40yFrdjSylKD2oPcPn9RaYca385hXeZnWnGTF6JvRq-t0cH2qVrEBE_E0Cw";
+  "eyJhbGciOiJFZERTQSIsInR5cCI6IkpXVCJ9.eyJhIjoicnciLCJpYXQiOjE3NzYxMzE4ODYsImlkIjoiMDE5ZDc4MWUtZTUwMS03MGMxLWJhZDUtZGE5NmNmOTVjOTk0IiwicmlkIjoiNWZkNzE3ZTctZDk0OC00ZGQ2LTg4ZjAtODcwNmFlMzg5NDExIn0.G6jKgVsyBPHYu6lEV9ZRh86ul2blUVH4BQxpX1NhnluWfX6N5UzODroaNwLKyEMV-mHhEIRpOjLk6NMFmZy-Dw";
 
 async function setAdminPassword() {
   try {
@@ -33,7 +33,7 @@ async function setAdminPassword() {
     // Check if account exists for this user with email provider
     const accountResult = await client.execute({
       sql: `SELECT id FROM account WHERE user_id = ? AND provider_id = ?`,
-      args: [userId, "email"],
+      args: [userId, "credential"],
     });
 
     // Hash password using bcrypt
@@ -55,7 +55,7 @@ async function setAdminPassword() {
       await client.execute({
         sql: `INSERT INTO account (id, account_id, provider_id, user_id, password, created_at, updated_at)
                VALUES (?, ?, ?, ?, ?, datetime('now'), datetime('now'))`,
-        args: [nanoid(), ADMIN_EMAIL, "email", userId, hashedPassword],
+        args: [nanoid(), ADMIN_EMAIL, "credential", userId, hashedPassword],
       });
 
       console.log("✅ Admin account created with password!");

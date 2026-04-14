@@ -4,12 +4,13 @@ import { resolve } from "path";
 // Load .env file
 config({ path: resolve(__dirname, "../.env") });
 
-import { db } from "../server/db";
-import { user } from "../server/db/schema";
 import { nanoid } from "nanoid";
 
 async function createAdminUser() {
   try {
+    const { db } = await import("../server/db");
+    const { user } = await import("../server/db/schema");
+
     const adminUser = {
       id: nanoid(),
       name: "Admin Satya Ganita",

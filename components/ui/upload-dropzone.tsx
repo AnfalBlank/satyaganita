@@ -1,16 +1,15 @@
 "use client";
 
 import { cn } from "@/lib/utils";
-import type { UploadHookControl } from "@better-upload/client";
 import { Loader2, Upload } from "lucide-react";
-import { useId } from "react";
+import { useId, useState } from "react";
 import { useDropzone } from "react-dropzone";
+import { toast } from "sonner";
 
-type UploadDropzoneProps = {
-  control: UploadHookControl<true>;
+export type UploadDropzoneProps = {
+  onUploadComplete?: (urls: string[]) => void;
   id?: string;
   accept?: string;
-  metadata?: Record<string, unknown>;
   description?:
     | {
         fileTypes?: string;
@@ -18,32 +17,46 @@ type UploadDropzoneProps = {
         maxFiles?: number;
       }
     | string;
-  uploadOverride?: (
-    ...args: Parameters<UploadHookControl<true>["upload"]>
-  ) => void;
 };
 
 export function UploadDropzone({
-  control: { upload, isPending },
+  onUploadComplete,
   id: _id,
   accept,
-  metadata,
   description,
-  uploadOverride,
 }: UploadDropzoneProps) {
   const id = useId();
+  const [isPending, setIsPending] = useState(false);
 
   const { getRootProps, getInputProps, isDragActive, inputRef } = useDropzone({
-    onDrop: (files) => {
+    onDrop: async (files) => {
       if (files.length > 0 && !isPending) {
-        if (uploadOverride) {
-          uploadOverride(files, { metadata });
-        } else {
-          upload(files, { metadata });
+        setIsPending(true);
+        try {
+          const formData = new FormData();
+          files.forEach((file) => formData.append("files", file));
+
+          const res = await fetch("/api/upload", {
+            method: "POST",
+            body: formData,
+          });
+
+          if (!res.ok) throw new Error("Upload failed");
+
+          const data = await res.json();
+          if (data.urls && onUploadComplete) {
+            onUploadComplete(data.urls);
+          }
+          toast.success("Berkas berhasil diunggah!");
+        } catch (error) {
+          console.error("Upload error:", error);
+          toast.error("Gagal mengunggah berkas. Silakan coba lagi.");
+        } finally {
+          setIsPending(false);
+          if (inputRef.current) {
+            inputRef.current.value = "";
+          }
         }
-      }
-      if (inputRef.current) {
-        inputRef.current.value = "";
       }
     },
     noClick: true,
@@ -52,19 +65,20 @@ export function UploadDropzone({
   return (
     <div
       className={cn(
-        "border-input text-foreground relative rounded-lg border border-dashed transition-colors",
+        "border-input text-foreground relative rounded-2xl border-2 border-dashed transition-all",
         {
-          "border-primary/80": isDragActive,
+          "border-primary bg-primary/5": isDragActive,
+          "hover:border-primary/50": !isDragActive,
         }
       )}
     >
       <label
         {...getRootProps()}
         className={cn(
-          "dark:bg-input/10 flex w-full min-w-72 cursor-pointer flex-col items-center justify-center rounded-lg bg-transparent px-2 py-6 transition-colors",
+          "dark:bg-input/10 flex w-full min-w-72 cursor-pointer flex-col items-center justify-center rounded-2xl bg-transparent px-2 py-8 transition-colors",
           {
             "text-muted-foreground cursor-not-allowed": isPending,
-            "hover:bg-accent dark:hover:bg-accent/40": !isPending,
+            "hover:bg-accent/40": !isPending,
             "opacity-0": isDragActive,
           }
         )}
@@ -107,8 +121,8 @@ export function UploadDropzone({
       </label>
 
       {isDragActive && (
-        <div className="pointer-events-none absolute inset-0 rounded-lg">
-          <div className="dark:bg-accent/40 bg-accent flex size-full flex-col items-center justify-center rounded-lg">
+        <div className="pointer-events-none absolute inset-0 rounded-2xl">
+          <div className="dark:bg-accent/40 bg-accent/20 flex size-full flex-col items-center justify-center rounded-2xl">
             <div className="my-2">
               <Upload className="size-6" />
             </div>

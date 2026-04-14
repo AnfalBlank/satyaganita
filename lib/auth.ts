@@ -13,10 +13,11 @@ export const auth = betterAuth({
     schema: schema,
   }),
 
-  baseURL: process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000",
+  baseURL: process.env.BETTER_AUTH_URL || process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000",
 
   // Trusted origins for CORS and security
   trustedOrigins: [
+    "http://localhost:3004",
     "http://localhost:3000",
     "http://localhost:3001",
     "http://localhost:3002",

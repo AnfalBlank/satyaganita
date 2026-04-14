@@ -1,69 +1,63 @@
-import { route, type Router } from "@better-upload/server";
-import { toRouteHandler } from "@better-upload/server/adapters/next";
-import { cloudflare } from "@better-upload/server/clients";
+import { NextResponse } from "next/server";
+import { writeFile, mkdir } from "fs/promises";
+import { join } from "path";
+import { nanoid } from "nanoid";
 
-/**
- * Better Upload configuration with Cloudflare R2
- * Environment variables are injected by Yapi at runtime
- */
-const router: Router = {
-  client: cloudflare({
-    accountId: process.env.CLOUDFLARE_ACCOUNT_ID!,
-    accessKeyId: process.env.CLOUDFLARE_ACCESS_KEY_ID!,
-    secretAccessKey: process.env.CLOUDFLARE_SECRET_ACCESS_KEY!,
-  }),
-  bucketName: "yapi-app",
-  routes: {
-    // Image uploads route
-    images: route({
-      fileTypes: ["image/*"],
-      multipleFiles: true,
-      maxFiles: 10,
-      maxFileSize: 1024 * 1024 * 5, // 5MB per file
-      onBeforeUpload: (async () => {
-        return {
-          generateObjectInfo: ({ file }: { file: { name: string } }) => {
-            const uploadId = crypto.randomUUID();
-            return {
-              key: `projects/as2NRJTanA3IwHtEtXkFd/uploads/${uploadId}-${file.name}`,
-            };
-          },
-        };
-      }) as any,
-    }),
-    // Single avatar/profile image route
-    avatar: route({
-      fileTypes: ["image/*"],
-      maxFileSize: 1024 * 1024 * 2, // 2MB max for avatars
-      onBeforeUpload: (async () => {
-        return {
-          generateObjectInfo: ({ file }: { file: { name: string } }) => {
-            const uploadId = crypto.randomUUID();
-            return {
-              key: `projects/as2NRJTanA3IwHtEtXkFd/avatars/${uploadId}-${file.name}`,
-            };
-          },
-        };
-      }) as any,
-    }),
-    // Documents route (PDFs, etc.)
-    documents: route({
-      fileTypes: ["application/pdf", "image/*"],
-      multipleFiles: true,
-      maxFiles: 5,
-      maxFileSize: 1024 * 1024 * 10, // 10MB per document
-      onBeforeUpload: (async () => {
-        return {
-          generateObjectInfo: ({ file }: { file: { name: string } }) => {
-            const uploadId = crypto.randomUUID();
-            return {
-              key: `projects/as2NRJTanA3IwHtEtXkFd/documents/${uploadId}-${file.name}`,
-            };
-          },
-        };
-      }) as any,
-    }),
-  },
-};
+export async function POST(request: Request) {
+  try {
+    const formData = await request.formData();
+    const files = formData.getAll("files") as File[];
 
-export const { POST } = toRouteHandler(router);
+    if (!files || files.length === 0) {
+      return NextResponse.json(
+        { error: "No files received." },
+        { status: 400 }
+      );
+    }
+
+    const uploadedUrls: string[] = [];
+
+    // Ensure uploads directory exists
+    const uploadDir = join(process.cwd(), "public", "uploads");
+    try {
+      await mkdir(uploadDir, { recursive: true });
+    } catch (err) {
+      console.warn("Upload directory might already exist:", err);
+    }
+
+    for (const file of files) {
+      if (!(file instanceof File)) continue;
+
+      const bytes = await file.arrayBuffer();
+      const buffer = Buffer.from(bytes);
+
+      // Create unique filename safely
+      const uniqueId = nanoid(10);
+      const originalName = file.name.replace(/[^a-zA-Z0-9.\-_]/g, "_");
+      const filename = `${uniqueId}-${originalName}`;
+      const filepath = join(uploadDir, filename);
+
+      await writeFile(filepath, buffer);
+
+      // Return the public URL
+      const publicUrl = `/uploads/${filename}`;
+      uploadedUrls.push(publicUrl);
+    }
+
+    return NextResponse.json({
+      success: true,
+      files: uploadedUrls.map((url) => ({
+        url,
+        // Mocking objectInfo format for backward compatibility with components if needed
+        objectInfo: { key: url.replace(/^\//, "") },
+      })),
+      urls: uploadedUrls,
+    });
+  } catch (error) {
+    console.error("Error uploading file:", error);
+    return NextResponse.json(
+      { error: "Something went wrong uploading the file." },
+      { status: 500 }
+    );
+  }
+}

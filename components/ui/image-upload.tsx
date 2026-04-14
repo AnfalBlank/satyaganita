@@ -2,15 +2,14 @@
 
 import * as React from "react";
 import Image from "next/image";
-import { useUploadFiles } from "@better-upload/client";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Upload, X, Image as ImageIcon, Loader2 } from "lucide-react";
+import { toast } from "sonner";
 
 interface ImageUploadProps {
   value?: string | string[];
   onChange: (value: string | string[]) => void;
-  route?: string;
   multiple?: boolean;
   maxFiles?: number;
   className?: string;
@@ -20,7 +19,6 @@ interface ImageUploadProps {
 export function ImageUpload({
   value,
   onChange,
-  route = "images",
   multiple = false,
   maxFiles = 4,
   className,
@@ -28,6 +26,8 @@ export function ImageUpload({
 }: ImageUploadProps) {
   const inputRef = React.useRef<HTMLInputElement>(null);
   const [isDragging, setIsDragging] = React.useState(false);
+  const [isPending, setIsPending] = React.useState(false);
+  const [fakeProgress, setFakeProgress] = React.useState(0);
 
   // Normalize value to array
   const images = React.useMemo(() => {
@@ -36,30 +36,48 @@ export function ImageUpload({
     return [value];
   }, [value]);
 
-  const { upload, isPending, progresses } = useUploadFiles({
-    route,
-    onUploadComplete: (data) => {
-      // Extract URLs from the response
-      const urls: string[] = [];
-      if (data.files && Array.isArray(data.files)) {
-        for (const file of data.files) {
-          const key = file.objectInfo?.key;
-          if (key) {
-            const publicUrl = `${process.env.NEXT_PUBLIC_R2_PUBLIC_URL || ""}/${key}`;
-            urls.push(publicUrl);
-          }
-        }
-      }
+  const uploadFiles = async (filesToUpload: File[]) => {
+    if (filesToUpload.length === 0) return;
+    setIsPending(true);
+    setFakeProgress(10);
+    
+    // Simulate progress animation
+    const progressInterval = setInterval(() => {
+      setFakeProgress((prev) => (prev < 90 ? prev + 10 : prev));
+    }, 200);
 
-      if (urls.length > 0) {
+    try {
+      const formData = new FormData();
+      filesToUpload.forEach((f) => formData.append("files", f));
+
+      const res = await fetch("/api/upload", {
+        method: "POST",
+        body: formData,
+      });
+
+      if (!res.ok) throw new Error("Upload failed");
+
+      const data = await res.json();
+      if (data.urls && data.urls.length > 0) {
         if (multiple) {
-          onChange([...images, ...urls]);
+          onChange([...images, ...data.urls]);
         } else {
-          onChange(urls[0] as string);
+          onChange(data.urls[0] as string);
         }
       }
-    },
-  });
+      toast.success("Gambar berhasil diunggah!");
+    } catch (error) {
+      console.error("Image upload failed", error);
+      toast.error("Gagal mengunggah gambar. Silakan coba lagi.");
+    } finally {
+      clearInterval(progressInterval);
+      setFakeProgress(100);
+      setTimeout(() => {
+        setIsPending(false);
+        setFakeProgress(0);
+      }, 500);
+    }
+  };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
@@ -67,7 +85,7 @@ export function ImageUpload({
       const filesToUpload = multiple
         ? Array.from(files).slice(0, maxFiles - images.length)
         : [files[0]!];
-      upload(filesToUpload);
+      uploadFiles(filesToUpload);
     }
     // Reset input
     if (inputRef.current) {
@@ -86,7 +104,7 @@ export function ImageUpload({
       const filesToUpload = multiple
         ? Array.from(files).slice(0, maxFiles - images.length)
         : [files[0]!];
-      upload(filesToUpload);
+      uploadFiles(filesToUpload);
     }
   };
 
@@ -113,14 +131,6 @@ export function ImageUpload({
 
   const canAddMore = multiple ? images.length < maxFiles : images.length === 0;
 
-  // Calculate overall progress from file upload info objects
-  const progressValues = Object.values(progresses);
-  const overallProgress =
-    progressValues.length > 0
-      ? progressValues.reduce((acc, file) => acc + (file.progress || 0), 0) /
-        progressValues.length
-      : 0;
-
   return (
     <div className={cn("space-y-4", className)}>
       {/* Image previews */}
@@ -129,7 +139,7 @@ export function ImageUpload({
           {images.map((url, index) => (
             <div
               key={`${url}-${index}`}
-              className="group bg-muted relative aspect-square overflow-hidden rounded-lg border"
+              className="group bg-muted relative aspect-[4/3] overflow-hidden rounded-2xl border"
             >
               <Image
                 src={url}
@@ -159,10 +169,10 @@ export function ImageUpload({
           onDragOver={handleDragOver}
           onDragLeave={handleDragLeave}
           className={cn(
-            "relative rounded-lg border-2 border-dashed transition-colors",
+            "relative rounded-2xl border-2 border-dashed transition-all",
             isDragging
               ? "border-primary bg-primary/5"
-              : "border-muted-foreground/25 hover:border-muted-foreground/50",
+              : "border-muted-foreground/25 hover:border-primary/50",
             disabled && "cursor-not-allowed opacity-50"
           )}
         >
@@ -187,7 +197,7 @@ export function ImageUpload({
                 <Loader2 className="text-muted-foreground mb-3 size-10 animate-spin" />
                 <p className="text-sm font-medium">Uploading...</p>
                 <p className="text-muted-foreground mt-1 text-xs">
-                  {Math.round(overallProgress * 100)}% complete
+                  {fakeProgress}% complete
                 </p>
               </>
             ) : (
@@ -216,11 +226,11 @@ export function ImageUpload({
       )}
 
       {/* Progress bar */}
-      {isPending && overallProgress > 0 && (
+      {isPending && fakeProgress > 0 && (
         <div className="bg-muted h-1.5 w-full overflow-hidden rounded-full">
           <div
             className="bg-primary h-full transition-all duration-300"
-            style={{ width: `${overallProgress * 100}%` }}
+            style={{ width: `${fakeProgress}%` }}
           />
         </div>
       )}

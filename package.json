@@ -10,7 +10,9 @@
     "db:generate": "drizzle-kit generate",
     "db:push": "drizzle-kit push",
     "create-admin": "tsx scripts/create-admin.ts",
-    "set-admin-password": "tsx scripts/set-admin-password.ts"
+    "set-admin-password": "tsx scripts/set-admin-password.ts",
+    "reset-admin": "tsx scripts/reset-admin.ts",
+    "make-admin": "tsx scripts/make-admin.ts"
   },
   "dependencies": {
     "@better-upload/client": "^3.0.14",
