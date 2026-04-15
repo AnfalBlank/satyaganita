@@ -12,6 +12,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
 import { ImageUpload } from "@/components/ui/image-upload";
+import { RichTextEditor } from "@/components/ui/rich-text-editor";
 import { toast } from "sonner";
 
 interface Post {
@@ -306,13 +307,11 @@ export default function AdminPostsPage() {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="content">Content (Markdown/HTML supported)</Label>
-              <Textarea
-                id="content"
-                className="min-h-[300px]"
+              <Label htmlFor="content">Content</Label>
+              <RichTextEditor
                 value={content}
-                onChange={(e) => setContent(e.target.value)}
-                required
+                onChange={setContent}
+                placeholder="Tulis atau paste konten artikel dari Word di sini..."
               />
             </div>
 

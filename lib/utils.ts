@@ -19,51 +19,47 @@ export function calculateReadingTime(text: string): number {
 
 export function formatContent(content: string): string {
   if (!content) return "";
-  
-  // If content contains common HTML tags, assume it's already formatted
-  const htmlPattern = /<(p|div|h[1-6]|ul|ol|img|br)[\s>]/i;
-  // Make sure we only return early if there are explicit block-level HTML tags
-  if (htmlPattern.test(content) && !content.includes("![")) {
-     // If it contains explicit block HTML, and doesn't look like mixed markdown with images
-     // just fallback to returning it.
-     // return content;
+
+  // Detect if content is already proper HTML (produced by Tiptap or any HTML editor)
+  // Check for any block-level HTML tags at or near the start of the content
+  const isHtml = /<(p|div|h[1-6]|ul|ol|li|blockquote|pre|figure|br)[\s>/]/i.test(content);
+  if (isHtml) {
+    // Already clean HTML — return as-is to preserve all formatting
+    return content;
   }
-  
+
+  // Legacy: plain text / markdown fallback parser
   let formatted = content;
-  
-  // Quick basic markdown parser
+
   // 1. Convert Images ![alt](url)
   formatted = formatted.replace(/\!\[([^\]]*)\]\(([^)]+)\)/g, '<img src="$2" alt="$1" />');
-  
+
   // 2. Convert Links [text](url)
   formatted = formatted.replace(/(?<!!)(?:\[([^\]]+)\])\(([^)]+)\)/g, '<a href="$2">$1</a>');
-  
+
   // 3. Convert Headers # Header
   formatted = formatted.replace(/^### (.*$)/gim, '<h3>$1</h3>');
   formatted = formatted.replace(/^## (.*$)/gim, '<h2>$1</h2>');
   formatted = formatted.replace(/^# (.*$)/gim, '<h1>$1</h1>');
-  
+
   // 4. Convert Bold **text**
   formatted = formatted.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
-  
+
   // 5. Convert Italic *text*
   formatted = formatted.replace(/(?<!\w)\*([^*]+)\*(?!\w)/g, '<em>$1</em>');
-  
+
   // 6. Convert Lists (bullets starting with -, *, or +)
   formatted = formatted.replace(/^\s*[-*+]\s+(.*)$/gim, '<ul><li>$1</li></ul>');
   // Combine adjacent ul lists
   formatted = formatted.replace(/<\/ul>\n*<ul>/g, '\n');
-  
+
   // 7. Convert double newlines to paragraphs (skip wrapping already block tags)
   const lines = formatted.split(/\n\s*\n/).filter(p => p.trim().length > 0);
   formatted = lines.map(p => {
-    // If paragraph starts with a block tag, don't wrap it in <p>
-    if (/^<(h[1-6]|ul|ol|div|img|p)/.test(p.trim())) {
-      return p;
-    }
+    if (/^<(h[1-6]|ul|ol|div|img|p)/.test(p.trim())) return p;
     return `<p>${p.replace(/\n/g, "<br />")}</p>`;
   }).join("\n");
-  
+
   return formatted;
 }
 
