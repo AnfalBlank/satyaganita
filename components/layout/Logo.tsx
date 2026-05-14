@@ -29,22 +29,26 @@ export function Logo({ variant = 'full', className = '', showTagline = true, lig
     fetchLogo()
   }, [])
 
-  // Hero variant — logo besar tanpa teks samping, tanpa frame kotak
+  // Hero variant — logo besar + nama perusahaan, tanpa frame
   if (variant === 'hero') {
     return (
-      <div className={`flex flex-col items-start gap-3 ${className}`}>
+      <div className={`flex items-center gap-5 ${className}`}>
         <img
           src={logoUrl}
           alt="Satya Ganita Advisor"
-          className="h-24 md:h-32 w-auto object-contain drop-shadow-2xl"
+          className="h-20 md:h-28 w-auto object-contain drop-shadow-2xl"
+          style={{ borderRadius: 0, background: 'transparent' }}
         />
-        {showTagline && (
-          <span className={`text-xs font-bold tracking-[0.25em] uppercase ${
-            lightText ? 'text-white/60' : 'text-muted-foreground'
-          }`}>
-            Advisor Solution
+        <div className="flex flex-col">
+          <span className="text-2xl md:text-4xl font-bold tracking-tight leading-none text-white drop-shadow-lg">
+            SATYA GANITA
           </span>
-        )}
+          {showTagline && (
+            <span className="text-xs md:text-sm font-medium tracking-[0.25em] uppercase mt-2 text-white/70">
+              Advisor Solution
+            </span>
+          )}
+        </div>
       </div>
     )
   }

@@ -62,7 +62,7 @@ export function Hero() {
             transition={{ duration: 0.8 }}
             className="mb-10"
           >
-            <Logo variant="hero" showTagline={false} lightText={true} />
+            <Logo variant="hero" showTagline={true} lightText={true} />
           </motion.div>
 
           <motion.div

@@ -9,7 +9,7 @@ export function Footer() {
         {/* Brand & Mission */}
         <div className="md:col-span-2">
           <Link href="/" className="inline-block mb-6 hover:opacity-80 transition-opacity">
-            <Logo variant="full" showTagline={true} className="scale-110" lightText={true} />
+            <Logo variant="full" showTagline={true} lightText={true} />
           </Link>
           <p className="text-white/70 text-sm max-w-sm mb-6">
             Mitra strategis dalam pengelolaan pajak, digitalisasi sistem keuangan, dan peningkatan performa manajemen secara strategis.
