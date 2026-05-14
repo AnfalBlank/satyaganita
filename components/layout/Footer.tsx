@@ -1,15 +1,54 @@
+'use client'
+
 import Link from 'next/link'
 import { Mail, MapPin, Phone, Instagram, Linkedin, Facebook } from 'lucide-react'
-import { Logo } from '@/components/layout/Logo'
+import { useState, useEffect } from 'react'
 
 export function Footer() {
+  const [logoUrl, setLogoUrl] = useState<string>('/logo-v2.png')
+
+  useEffect(() => {
+    async function fetchLogo() {
+      try {
+        const res = await fetch('/api/settings')
+        if (res.ok) {
+          const data = await res.json()
+          if (data.logo_url) {
+            setLogoUrl(data.logo_url)
+          }
+        }
+      } catch {
+        // fallback to default
+      }
+    }
+    fetchLogo()
+  }, [])
+
   return (
     <footer className="bg-primary text-primary-foreground py-16">
       <div className="container mx-auto px-4 grid grid-cols-1 md:grid-cols-4 gap-12">
         {/* Brand & Mission */}
         <div className="md:col-span-2">
           <Link href="/" className="inline-block mb-6 hover:opacity-80 transition-opacity">
-            <Logo variant="full" showTagline={true} lightText={true} />
+            <div className="flex items-center gap-4">
+              {/* Logo with rounded frame */}
+              <div className="rounded-2xl bg-white/95 backdrop-blur-md p-3 shadow-xl border border-white/20">
+                <img
+                  src={logoUrl}
+                  alt="Satya Ganita Advisor"
+                  className="h-14 w-auto object-contain"
+                />
+              </div>
+              {/* Company name */}
+              <div className="flex flex-col">
+                <span className="text-xl md:text-2xl font-bold tracking-tight leading-none text-white">
+                  SATYA GANITA
+                </span>
+                <span className="text-xs font-medium tracking-[0.2em] uppercase mt-1 text-white/70">
+                  Advisor Solution
+                </span>
+              </div>
+            </div>
           </Link>
           <p className="text-white/70 text-sm max-w-sm mb-6">
             Mitra strategis dalam pengelolaan pajak, digitalisasi sistem keuangan, dan peningkatan performa manajemen secara strategis.
@@ -81,13 +120,13 @@ export function Footer() {
             </li>
           </ul>
           <div className="flex space-x-4 mt-8">
-            <Link href="#" className="p-2 bg-white/10 rounded-full hover:bg-white/20 transition-colors">
+            <Link href="#" className="p-2 bg-white/10 rounded-full hover:bg-accent hover:scale-110 transition-all">
               <Linkedin className="h-5 w-5" />
             </Link>
-            <Link href="#" className="p-2 bg-white/10 rounded-full hover:bg-white/20 transition-colors">
+            <Link href="#" className="p-2 bg-white/10 rounded-full hover:bg-accent hover:scale-110 transition-all">
               <Instagram className="h-5 w-5" />
             </Link>
-            <Link href="#" className="p-2 bg-white/10 rounded-full hover:bg-white/20 transition-colors">
+            <Link href="#" className="p-2 bg-white/10 rounded-full hover:bg-accent hover:scale-110 transition-all">
               <Facebook className="h-5 w-5" />
             </Link>
           </div>

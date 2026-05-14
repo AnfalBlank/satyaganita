@@ -10,7 +10,7 @@ interface LogoProps {
 }
 
 export function Logo({ variant = 'full', className = '', showTagline = true, lightText = false }: LogoProps) {
-  const [logoUrl, setLogoUrl] = useState<string>('/logo.png')
+  const [logoUrl, setLogoUrl] = useState<string>('/logo-v2.png')
 
   useEffect(() => {
     async function fetchLogo() {
@@ -29,16 +29,17 @@ export function Logo({ variant = 'full', className = '', showTagline = true, lig
     fetchLogo()
   }, [])
 
-  // Hero variant — logo besar + nama perusahaan, tanpa frame
+  // Hero variant — logo besar + nama perusahaan
   if (variant === 'hero') {
     return (
       <div className={`flex items-center gap-5 ${className}`}>
-        <img
-          src={logoUrl}
-          alt="Satya Ganita Advisor"
-          className="h-20 md:h-28 w-auto object-contain drop-shadow-2xl"
-          style={{ borderRadius: 0, background: 'transparent' }}
-        />
+        <div className="rounded-2xl overflow-hidden bg-white/10 backdrop-blur-sm p-2 shadow-2xl">
+          <img
+            src={logoUrl}
+            alt="Satya Ganita Advisor"
+            className="h-20 md:h-28 w-auto object-contain"
+          />
+        </div>
         <div className="flex flex-col">
           <span className="text-2xl md:text-4xl font-bold tracking-tight leading-none text-white drop-shadow-lg">
             SATYA GANITA
@@ -53,10 +54,10 @@ export function Logo({ variant = 'full', className = '', showTagline = true, lig
     )
   }
 
-  // Icon-only variant — just the image, no frame
+  // Icon-only variant
   if (variant === 'icon') {
     return (
-      <div className={className}>
+      <div className={`rounded-xl overflow-hidden ${className}`}>
         <img
           src={logoUrl}
           alt="Satya Ganita Advisor"
@@ -69,17 +70,20 @@ export function Logo({ variant = 'full', className = '', showTagline = true, lig
   // Compact (navbar) & Full (footer) variants
   const imgSize = variant === 'compact' ? 'h-10' : 'h-12'
   const nameSize = variant === 'compact' ? 'text-base md:text-lg' : 'text-lg md:text-xl'
+  // Frame style: subtle rounded container
+  const frameClass = lightText
+    ? 'rounded-xl overflow-hidden bg-white/10 p-1'
+    : 'rounded-xl overflow-hidden bg-muted/40 p-1'
 
   return (
     <div className={`flex items-center gap-3 ${className}`}>
-      {/* Logo — no frame, no background box */}
-      <img
-        src={logoUrl}
-        alt="Satya Ganita Advisor"
-        className={`${imgSize} w-auto object-contain`}
-      />
-
-      {/* Text */}
+      <div className={frameClass}>
+        <img
+          src={logoUrl}
+          alt="Satya Ganita Advisor"
+          className={`${imgSize} w-auto object-contain`}
+        />
+      </div>
       <div className="flex flex-col">
         <span className={`font-bold tracking-tight leading-none ${
           lightText

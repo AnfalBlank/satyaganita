@@ -1,17 +1,16 @@
 'use client'
 
 import { motion } from 'framer-motion'
-import { ArrowRight, Download, Calendar, Loader2 } from 'lucide-react'
+import { ArrowRight, Download, Calendar } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import Image from 'next/image'
 import Link from 'next/link'
 import { useState, useEffect } from 'react'
 import { toast } from 'sonner'
-import { Logo } from '@/components/layout/Logo'
 
 export function Hero() {
   const [companyProfileUrl, setCompanyProfileUrl] = useState<string | null>(null);
-  const [loading, setLoading] = useState(false);
+  const [logoUrl, setLogoUrl] = useState<string>('/logo-v2.png');
 
   useEffect(() => {
     async function fetchSettings() {
@@ -24,6 +23,9 @@ export function Hero() {
         const data = await res.json();
         if (data && data.company_profile_url) {
           setCompanyProfileUrl(data.company_profile_url);
+        }
+        if (data && data.logo_url) {
+          setLogoUrl(data.logo_url);
         }
       } catch (error) {
         console.warn("Failed to fetch settings:", error);
@@ -55,14 +57,34 @@ export function Hero() {
       </div>
 
       <div className="container mx-auto px-4 relative z-10 py-20 md:py-32">
-        <div className="max-w-4xl">
+        <div className="max-w-5xl">
+          {/* Logo Section - Horizontal Layout */}
           <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.8 }}
-            className="mb-10"
+            className="mb-12"
           >
-            <Logo variant="hero" showTagline={true} lightText={true} />
+            <div className="flex items-center gap-6">
+              {/* Logo with elegant rounded frame */}
+              <div className="rounded-3xl bg-white/95 backdrop-blur-md p-6 shadow-2xl border border-white/20">
+                <img
+                  src={logoUrl}
+                  alt="Satya Ganita Advisor"
+                  className="h-28 md:h-36 lg:h-40 w-auto object-contain"
+                />
+              </div>
+              
+              {/* Company Name - Side by side with logo */}
+              <div className="flex flex-col gap-2">
+                <h1 className="text-3xl md:text-5xl lg:text-6xl font-bold tracking-tight leading-none text-white drop-shadow-2xl">
+                  SATYA GANITA
+                </h1>
+                <p className="text-base md:text-xl lg:text-2xl font-medium tracking-[0.3em] uppercase text-accent drop-shadow-lg">
+                  Advisor Solution
+                </p>
+              </div>
+            </div>
           </motion.div>
 
           <motion.div
@@ -80,39 +102,39 @@ export function Hero() {
           <motion.div
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.1 }}
+            transition={{ duration: 0.8, delay: 0.3 }}
             className="mb-6"
           >
             <motion.h2
               initial={{ opacity: 0, x: -20 }}
               animate={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.6, delay: 0.3 }}
+              transition={{ duration: 0.6, delay: 0.4 }}
               className="text-xl md:text-2xl lg:text-3xl font-bold text-accent leading-tight mb-4"
             >
               Build the System, Empower the Team, Secure the Growth
             </motion.h2>
-            <motion.h1
+            <motion.h3
               initial={{ opacity: 0, scale: 0.9 }}
               animate={{ opacity: 1, scale: 1 }}
-              transition={{ duration: 0.8, delay: 0.4 }}
+              transition={{ duration: 0.8, delay: 0.5 }}
               className="text-4xl md:text-6xl lg:text-7xl font-bold text-white leading-[1.1]"
             >
               Pajak Tertib. Bisnis Tumbuh. <br />
               <motion.span
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
-                transition={{ duration: 0.8, delay: 0.8 }}
+                transition={{ duration: 0.8, delay: 0.9 }}
                 className="text-accent underline underline-offset-8 decoration-[3px]"
               >
                 Sistem Lebih Modern.
               </motion.span>
-            </motion.h1>
+            </motion.h3>
           </motion.div>
 
           <motion.p
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.2 }}
+            transition={{ duration: 0.8, delay: 0.6 }}
             className="text-lg md:text-xl text-white/80 mb-12 max-w-2xl leading-relaxed"
           >
             Satya Ganita adalah mitra strategis di bidang Keuangan, Perpajakan, dan Manajemen Operasional.
@@ -122,7 +144,7 @@ export function Hero() {
           <motion.div
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.3 }}
+            transition={{ duration: 0.8, delay: 0.7 }}
             className="flex flex-col sm:flex-row gap-4 md:gap-6"
           >
             <Button asChild size="lg" className="rounded-full bg-accent hover:bg-accent/90 text-primary font-bold px-8 h-14 text-base shadow-xl">

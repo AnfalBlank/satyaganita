@@ -20,10 +20,10 @@ export const metadata: Metadata = {
   description: "Satya Ganita mendampingi UMKM dan perusahaan menengah dalam pengelolaan pajak, digitalisasi sistem keuangan, dan peningkatan performa manajemen secara strategis.",
   icons: {
     icon: [
-      { url: "/logo.png", type: "image/png" },
+      { url: "/logo-v2.png", type: "image/png" },
     ],
-    apple: "/logo.png",
-    shortcut: "/logo.png",
+    apple: "/logo-v2.png",
+    shortcut: "/logo-v2.png",
   },
   openGraph: {
     title: "Satya Ganita | Konsultan Pajak & Manajemen Bisnis",
