@@ -60,9 +60,9 @@ export function Hero() {
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8 }}
-            className="mb-8"
+            className="mb-10"
           >
-            <Logo variant="full" showTagline={true} className="scale-100" />
+            <Logo variant="hero" showTagline={false} lightText={true} />
           </motion.div>
 
           <motion.div
