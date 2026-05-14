@@ -10,6 +10,9 @@ import {
   LogOut,
   FolderTree,
   Settings,
+  Shield,
+  Package,
+  Building2,
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -28,46 +31,37 @@ import {
 import { authClient } from "@/lib/auth-client";
 import { useRouter } from "next/navigation";
 
-const menuItems = [
+const menuGroups = [
   {
-    title: "Dashboard",
-    url: "/admin",
-    icon: LayoutDashboard,
+    label: "Utama",
+    items: [
+      { title: "Dashboard", url: "/admin", icon: LayoutDashboard },
+      { title: "Konsultasi Masuk", url: "/admin/inquiries", icon: MessageSquare },
+    ],
   },
   {
-    title: "Inquiries",
-    url: "/admin/inquiries",
-    icon: MessageSquare,
+    label: "Konten Website",
+    items: [
+      { title: "Layanan", url: "/admin/services", icon: Briefcase },
+      { title: "Garansi Layanan", url: "/admin/guarantees", icon: Shield },
+      { title: "Paket Harga", url: "/admin/pricing", icon: Package },
+      { title: "Sektor Industri", url: "/admin/industry-sectors", icon: Building2 },
+      { title: "FAQ", url: "/admin/faqs", icon: HelpCircle },
+      { title: "Testimoni", url: "/admin/testimonials", icon: Users },
+    ],
   },
   {
-    title: "Services",
-    url: "/admin/services",
-    icon: Briefcase,
+    label: "Blog & Konten",
+    items: [
+      { title: "Artikel / Insights", url: "/admin/posts", icon: FileText },
+      { title: "Kategori", url: "/admin/categories", icon: FolderTree },
+    ],
   },
   {
-    title: "Categories",
-    url: "/admin/categories",
-    icon: FolderTree,
-  },
-  {
-    title: "FAQs",
-    url: "/admin/faqs",
-    icon: HelpCircle,
-  },
-  {
-    title: "Testimonials",
-    url: "/admin/testimonials",
-    icon: Users,
-  },
-  {
-    title: "Blog Posts",
-    url: "/admin/posts",
-    icon: FileText,
-  },
-  {
-    title: "Settings",
-    url: "/admin/settings",
-    icon: Settings,
+    label: "Sistem",
+    items: [
+      { title: "Pengaturan", url: "/admin/settings", icon: Settings },
+    ],
   },
 ];
 
@@ -89,34 +83,36 @@ export function AdminSidebar() {
         </div>
       </SidebarHeader>
       <SidebarContent>
-        <SidebarGroup>
-          <SidebarGroupLabel>Menu</SidebarGroupLabel>
-          <SidebarGroupContent>
-            <SidebarMenu>
-              {menuItems.map((item) => (
-                <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton
-                    asChild
-                    isActive={pathname === item.url}
-                    tooltip={item.title}
-                  >
-                    <Link href={item.url}>
-                      <item.icon />
-                      <span>{item.title}</span>
-                    </Link>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              ))}
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
+        {menuGroups.map((group) => (
+          <SidebarGroup key={group.label}>
+            <SidebarGroupLabel>{group.label}</SidebarGroupLabel>
+            <SidebarGroupContent>
+              <SidebarMenu>
+                {group.items.map((item) => (
+                  <SidebarMenuItem key={item.title}>
+                    <SidebarMenuButton
+                      asChild
+                      isActive={pathname === item.url}
+                      tooltip={item.title}
+                    >
+                      <Link href={item.url}>
+                        <item.icon />
+                        <span>{item.title}</span>
+                      </Link>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                ))}
+              </SidebarMenu>
+            </SidebarGroupContent>
+          </SidebarGroup>
+        ))}
       </SidebarContent>
       <SidebarFooter className="p-4 border-t">
         <SidebarMenu>
           <SidebarMenuItem>
             <SidebarMenuButton onClick={handleLogout} className="text-destructive">
               <LogOut />
-              <span>Sign Out</span>
+              <span>Keluar</span>
             </SidebarMenuButton>
           </SidebarMenuItem>
         </SidebarMenu>

@@ -1,26 +1,70 @@
 'use client'
 
-import { Shield, Award, TrendingUp } from 'lucide-react'
+import { useState, useEffect } from 'react'
+import { Shield, Award, TrendingUp, Star, Zap, CheckCircle2, Heart, Target, Lightbulb } from 'lucide-react'
 import { motion } from 'framer-motion'
 
+interface Guarantee {
+  id: string
+  title: string
+  description: string
+  icon: string | null
+  order: number
+}
+
+const iconMap: Record<string, React.ReactNode> = {
+  Shield: <Shield className="h-8 w-8 text-accent" />,
+  Award: <Award className="h-8 w-8 text-accent" />,
+  TrendingUp: <TrendingUp className="h-8 w-8 text-accent" />,
+  Star: <Star className="h-8 w-8 text-accent" />,
+  Zap: <Zap className="h-8 w-8 text-accent" />,
+  CheckCircle2: <CheckCircle2 className="h-8 w-8 text-accent" />,
+  Heart: <Heart className="h-8 w-8 text-accent" />,
+  Target: <Target className="h-8 w-8 text-accent" />,
+  Lightbulb: <Lightbulb className="h-8 w-8 text-accent" />,
+}
+
+const defaultGuarantees: Guarantee[] = [
+  {
+    id: '1',
+    title: 'Transfer Knowledge',
+    description: 'Tim Anda naik level secara kompetensi melalui coaching intensif dan pendampingan berkelanjutan.',
+    icon: 'Award',
+    order: 0,
+  },
+  {
+    id: '2',
+    title: 'Compliance',
+    description: 'Ketenangan pikiran karena administrasi pajak sesuai aturan dan terhindar dari denda administrasi.',
+    icon: 'Shield',
+    order: 1,
+  },
+  {
+    id: '3',
+    title: 'Efficiency',
+    description: 'Biaya yang lebih rendah dibandingkan merekrut Manajer Keuangan full-time dengan hasil yang lebih baik.',
+    icon: 'TrendingUp',
+    order: 2,
+  },
+]
+
 export function GuaranteeSection() {
-  const guarantees = [
-    {
-      icon: <Award className="h-8 w-8 text-accent" />,
-      title: 'Transfer Knowledge',
-      description: 'Tim Anda naik level secara kompetensi melalui coaching intensif dan pendampingan berkelanjutan.',
-    },
-    {
-      icon: <Shield className="h-8 w-8 text-accent" />,
-      title: 'Compliance',
-      description: 'Ketenangan pikiran karena administrasi pajak sesuai aturan dan terhindar dari denda administrasi.',
-    },
-    {
-      icon: <TrendingUp className="h-8 w-8 text-accent" />,
-      title: 'Efficiency',
-      description: 'Biaya yang lebih rendah dibandingkan merekrut Manajer Keuangan full-time dengan hasil yang lebih baik.',
-    },
-  ]
+  const [guarantees, setGuarantees] = useState<Guarantee[]>(defaultGuarantees)
+
+  useEffect(() => {
+    async function fetchGuarantees() {
+      try {
+        const res = await fetch('/api/admin/guarantees')
+        const data = await res.json()
+        if (data && data.length > 0) {
+          setGuarantees(data)
+        }
+      } catch (error) {
+        console.error('Failed to fetch guarantees:', error)
+      }
+    }
+    fetchGuarantees()
+  }, [])
 
   return (
     <section className="py-24 bg-white overflow-hidden">
@@ -52,7 +96,7 @@ export function GuaranteeSection() {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-6xl mx-auto">
           {guarantees.map((guarantee, idx) => (
             <motion.div
-              key={idx}
+              key={guarantee.id}
               initial={{ opacity: 0, y: 50 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
@@ -68,7 +112,7 @@ export function GuaranteeSection() {
                 className="flex justify-center mb-6"
               >
                 <div className="p-4 rounded-2xl bg-white shadow-lg">
-                  {guarantee.icon}
+                  {iconMap[guarantee.icon || 'Shield'] || <Shield className="h-8 w-8 text-accent" />}
                 </div>
               </motion.div>
               <h3 className="text-xl font-bold text-primary mb-4">

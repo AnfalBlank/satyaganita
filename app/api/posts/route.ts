@@ -1,13 +1,26 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/server/db";
 import { posts } from "@/server/db/schema";
-import { eq } from "drizzle-orm";
+import { eq, desc } from "drizzle-orm";
 import { nanoid } from "nanoid";
 import { auth } from "@/lib/auth";
 
 export async function GET(request: NextRequest) {
   try {
-    const allPosts = await db.select().from(posts).orderBy(posts.createdAt);
+    const { searchParams } = new URL(request.url);
+    const isAdmin = searchParams.get("admin") === "true";
+
+    // For admin, return all posts (including drafts). For public, only published.
+    const session = await auth.api.getSession({ headers: request.headers });
+    const canSeeAll = isAdmin && session?.user?.role === "admin";
+
+    let allPosts;
+    if (canSeeAll) {
+      allPosts = await db.select().from(posts).orderBy(desc(posts.createdAt));
+    } else {
+      allPosts = await db.select().from(posts).where(eq(posts.published, true)).orderBy(desc(posts.createdAt));
+    }
+
     return NextResponse.json(allPosts);
   } catch (error) {
     return NextResponse.json({ error: "Failed to fetch posts" }, { status: 500 });
@@ -30,7 +43,7 @@ export async function POST(request: NextRequest) {
       excerpt,
       coverImage,
       published,
-      category,
+      category: category === "none" ? null : category || null,
       authorId: session.user.id,
     }).returning();
 
@@ -55,7 +68,7 @@ export async function PUT(request: NextRequest) {
       excerpt,
       coverImage,
       published,
-      category,
+      category: category === "none" ? null : category || null,
       updatedAt: new Date(),
     }).where(eq(posts.id, id)).returning();
 

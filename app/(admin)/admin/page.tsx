@@ -243,6 +243,18 @@ export default async function AdminDashboardPage() {
               </Link>
             </Button>
             <Button asChild className="w-full justify-start" variant="outline">
+              <Link href="/admin/guarantees">
+                <Settings className="mr-2 h-4 w-4 text-emerald-600" />
+                Kelola Garansi Layanan
+              </Link>
+            </Button>
+            <Button asChild className="w-full justify-start" variant="outline">
+              <Link href="/admin/pricing">
+                <Settings className="mr-2 h-4 w-4 text-blue-600" />
+                Kelola Paket Harga
+              </Link>
+            </Button>
+            <Button asChild className="w-full justify-start" variant="outline">
               <Link href="/admin/categories">
                 <Settings className="mr-2 h-4 w-4 text-gray-600" />
                 Kelola Kategori

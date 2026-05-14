@@ -18,14 +18,21 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "Satya Ganita | Pajak Tertib. Bisnis Tumbuh.",
   description: "Satya Ganita mendampingi UMKM dan perusahaan menengah dalam pengelolaan pajak, digitalisasi sistem keuangan, dan peningkatan performa manajemen secara strategis.",
+  icons: {
+    icon: [
+      { url: "/logo.png", type: "image/png" },
+    ],
+    apple: "/logo.png",
+    shortcut: "/logo.png",
+  },
   openGraph: {
     title: "Satya Ganita | Konsultan Pajak & Manajemen Bisnis",
     description: "Pendampingan UMKM dan perusahaan menengah dalam pengelolaan pajak, digitalisasi sistem keuangan, dan strategi bisnis.",
-    url: "https://satyaganita.co.id", // Ganti dengan domain Anda jika sudah ada
+    url: "https://satyaganita.co.id",
     siteName: "Satya Ganita",
     images: [
       {
-        url: "https://images.unsplash.com/photo-1565688527174-775059ac429c?auto=format&fit=crop&q=80&w=1200&h=630",
+        url: "/logo.png",
         width: 1200,
         height: 630,
         alt: "Satya Ganita Business Consulting",
@@ -38,7 +45,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "Satya Ganita | Pajak Tertib. Bisnis Tumbuh.",
     description: "Partner Strategis UMKM untuk Pajak dan Manajemen Keuangan.",
-    images: ["https://images.unsplash.com/photo-1565688527174-775059ac429c?auto=format&fit=crop&q=80&w=1200&h=630"],
+    images: ["/logo.png"],
   },
 };
 

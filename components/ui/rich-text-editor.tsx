@@ -9,14 +9,17 @@ import Image from "@tiptap/extension-image";
 import Placeholder from "@tiptap/extension-placeholder";
 import { TextStyle } from "@tiptap/extension-text-style";
 import Color from "@tiptap/extension-color";
-import { useEffect, useCallback } from "react";
+import { useEffect, useCallback, useRef } from "react";
 import {
   Bold, Italic, UnderlineIcon, Strikethrough,
   Heading1, Heading2, Heading3, List, ListOrdered,
   AlignLeft, AlignCenter, AlignRight, AlignJustify,
-  LinkIcon, Undo, Redo, Quote, Minus, ImageIcon,
+  LinkIcon, Undo, Redo, Quote, Minus, ImageIcon, Upload,
+  Loader2,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { toast } from "sonner";
+import { useState } from "react";
 
 interface RichTextEditorProps {
   value: string;
@@ -63,6 +66,9 @@ export function RichTextEditor({
   placeholder = "Tulis konten artikel di sini...",
   className,
 }: RichTextEditorProps) {
+  const imageInputRef = useRef<HTMLInputElement>(null);
+  const [isUploadingImage, setIsUploadingImage] = useState(false);
+
   const editor = useEditor({
     immediatelyRender: false,
     extensions: [
@@ -80,7 +86,6 @@ export function RichTextEditor({
     ],
     content: value,
     onUpdate: ({ editor }) => {
-      // Get HTML, but if empty return empty string
       const html = editor.isEmpty ? "" : editor.getHTML();
       onChange(html);
     },
@@ -91,10 +96,9 @@ export function RichTextEditor({
     },
   });
 
-  // Sync external value changes (e.g. when editing an existing post)
+  // Sync external value changes
   useEffect(() => {
     if (editor && value !== editor.getHTML()) {
-      // Only update if the content actually differs to avoid infinite loops
       const currentContent = editor.isEmpty ? "" : editor.getHTML();
       if (value !== currentContent) {
         editor.commands.setContent(value || "", false);
@@ -113,17 +117,62 @@ export function RichTextEditor({
     editor?.chain().focus().extendMarkRange("link").setLink({ href: url }).run();
   }, [editor]);
 
-  const addImage = useCallback(() => {
+  // Insert image by URL (fallback)
+  const addImageByUrl = useCallback(() => {
     const url = window.prompt("URL gambar:");
     if (url) {
       editor?.chain().focus().setImage({ src: url }).run();
     }
   }, [editor]);
 
+  // Upload image file and insert into editor
+  const handleImageFileUpload = useCallback(async (file: File) => {
+    if (!file) return;
+    setIsUploadingImage(true);
+    try {
+      const formData = new FormData();
+      formData.append("files", file);
+
+      const res = await fetch("/api/upload", {
+        method: "POST",
+        body: formData,
+      });
+
+      if (!res.ok) throw new Error("Upload failed");
+
+      const data = await res.json();
+      if (data.urls && data.urls[0]) {
+        editor?.chain().focus().setImage({ src: data.urls[0] }).run();
+        toast.success("Gambar berhasil disisipkan!");
+      }
+    } catch {
+      toast.error("Gagal mengunggah gambar.");
+    } finally {
+      setIsUploadingImage(false);
+      if (imageInputRef.current) imageInputRef.current.value = "";
+    }
+  }, [editor]);
+
+  const triggerImageUpload = useCallback(() => {
+    imageInputRef.current?.click();
+  }, []);
+
   if (!editor) return null;
 
   return (
     <div className={cn("border border-input rounded-md overflow-hidden bg-background", className)}>
+      {/* Hidden file input for image upload */}
+      <input
+        ref={imageInputRef}
+        type="file"
+        accept="image/*"
+        className="sr-only"
+        onChange={(e) => {
+          const file = e.target.files?.[0];
+          if (file) handleImageFileUpload(file);
+        }}
+      />
+
       {/* Toolbar */}
       <div className="flex flex-wrap items-center gap-0.5 p-2 border-b border-input bg-muted/30">
         {/* History */}
@@ -250,7 +299,7 @@ export function RichTextEditor({
 
         <Divider />
 
-        {/* Link & Image */}
+        {/* Link */}
         <ToolbarButton
           onClick={setLink}
           active={editor.isActive("link")}
@@ -258,9 +307,25 @@ export function RichTextEditor({
         >
           <LinkIcon className="h-4 w-4" />
         </ToolbarButton>
-        <ToolbarButton onClick={addImage} title="Insert Image">
+
+        {/* Image Upload (file) */}
+        <ToolbarButton
+          onClick={triggerImageUpload}
+          disabled={isUploadingImage}
+          title="Upload Gambar dari Komputer"
+        >
+          {isUploadingImage ? (
+            <Loader2 className="h-4 w-4 animate-spin" />
+          ) : (
+            <Upload className="h-4 w-4" />
+          )}
+        </ToolbarButton>
+
+        {/* Image by URL */}
+        <ToolbarButton onClick={addImageByUrl} title="Sisipkan Gambar via URL">
           <ImageIcon className="h-4 w-4" />
         </ToolbarButton>
+
         <ToolbarButton
           onClick={() => editor.chain().focus().setHorizontalRule().run()}
           title="Horizontal Rule"
